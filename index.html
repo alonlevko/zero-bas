@@ -1,0 +1,486 @@
+
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link rel="stylesheet" type="text/css" href="cid:css-99d622a7-b09d-4ecb-b6de-0cda4c5d89cf@mhtml.blink">
+
+  <title>Towards Universal Mono-to-Binaural Speech Synthesis</title>
+      <meta property="og:title" content="Towards Universal Mono-to-Binaural Speech Synthesis">
+      <meta property="og:type" content="article">
+      <meta property="og:url" content="">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="preconnect" href="https://fonts.googleapis.com/">
+      <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+      <link href="./BinauralZero/css2" rel="preload" as="style">
+      <link href="./BinauralZero/css2" rel="stylesheet">
+    
+  
+   <link rel="stylesheet" href="./BinauralZero/style.css">
+
+    </head>
+  
+    <body>
+      <div class="main">
+  
+        <h1>Towards Universal Mono-to-Binaural Speech Synthesis</h1>
+        
+        <div class="fig-teaser">
+
+        </div>
+  
+    <div class="abs">
+        <p>
+          We consider the problem of synthesis of binaural speech from mono audio in arbitrary environments, which is important for modern telepresence and extended-reality applications. We find that existing neural mono-to-binaural methods are overfit to non-spatial acoustic properties, via analysis using a new benchmark (TUT Mono-to-Binaural), the first introduced since the original dataset of Richard at el. (2021). While these past methods focus on learning neural geometric transforms of monaural audio, we propose BinauralZero, a strong initial baseline for universal mono-to-binaural synthesis, which also matches or outperforms existing state-of-the-art neural mono-to-binaural renderers in their own environments despite never seeing any binaural data. It leverages the surprising discovery that an off-the-shelf mono audio denoising model can competently enhance the initial binauralization given by simple parameter-free transforms. We perform comprehensive ablations to understand how BinauralZero bridges the representation gap between mono and binaural audio, and analyze how current mono-to-binaural automated metrics are decorrelated from human ratings.
+    </p>
+    </div>
+  
+        <h1>Model</h1>
+        <div class="scroll-container">
+          <div class="fig-model">
+      <img src="./BinauralZero/BinauralZero_overview.png">
+          </div>
+  
+        </div>
+  
+        <p>
+  
+        <a id="bsd"></a></p><h2><a >Binaural Speech Dataset</a></h2>
+    <div class="table-container">
+          <table class="sample-table" id="samples-table">
+                <colgroup><col>
+                </colgroup><thead>
+                  <tr>
+                    <th colspan="1">Mono</th><th colspan="1">BinauralZero</th><th colspan="1">WarpNet</th><th colspan="1">BinauralGrad</th><th colspan="1">NFS</th><th colspan="1">Ground Truth</th>
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject1.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject1.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject1.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject1.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject1.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject1.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject10.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject10.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject10.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject10.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject10.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject10.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject19.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject22.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject22.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject22.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject22.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject22.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject22.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject24.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject24.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject24.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject24.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject24.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject24.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject26.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject26.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject26.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject26.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject26.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject26.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject33.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject33.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject33.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject33.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject33.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject33.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject38.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject38.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject38.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject38.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject38.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject38.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject6.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject6.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject6.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject6.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject6.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject6.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject46.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject46.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject46.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject46.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject46.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject46.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject47.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject47.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject47.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject47.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject47.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject47.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject45.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject45.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject45.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject45.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject45.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject45.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject2.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject2.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject2.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject2.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject2.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject2.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject20.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject20.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject20.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject20.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject20.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject20.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject21.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject21.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject21.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject21.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject21.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject21.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject23.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject23.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject23.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject23.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject23.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject23.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject35.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject35.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject35.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject35.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject35.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject35.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject36.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject36.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject36.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject36.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject36.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject36.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject37.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject37.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject37.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject37.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject37.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject37.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject40.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject40.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject40.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject40.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject40.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject40.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject41.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject41.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject41.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject41.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject41.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject41.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject43.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject43.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject43.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject43.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject43.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject43.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject49.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject49.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject49.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject49.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject49.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject49.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject48.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject48.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject48.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject48.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject48.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject48.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Mono/subject9.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/Ours/subject9.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/WarpNet/subject9.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/BinauralGrad/subject9.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/NFS/subject9.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/binaural_speech_dataset/GT/subject9.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                </tbody>
+          </table>
+    </div>
+    <p>
+  
+      
+        <a id="123"></a></p><h2><a id="123">TUT Mono to Binaural Dataset</a></h2>
+  
+        
+    <div class="table-container">
+          <table class="sample-table" id="samples-table-tut">
+                <colgroup><col>
+                </colgroup><thead>
+                  <tr>
+                    <th colspan="1">Mono</th><th colspan="1">BinauralZero</th><th colspan="1">WarpNet</th><th colspan="1">BinauralGrad</th><th colspan="1">NFS</th><th colspan="1">Ground Truth</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject73.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject73.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject73.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject73.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject73.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject73.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject203.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject203.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject203.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject203.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject203.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject203.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject207.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject207.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject207.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject207.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject207.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject207.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject62.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject62.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject62.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject62.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject62.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject62.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject70.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject70.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject70.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject70.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject70.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject70.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject13.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject13.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject13.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject13.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject13.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject13.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject245.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject245.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject245.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject245.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject245.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject245.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject183.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject183.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject183.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject183.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject183.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject183.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject247.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject247.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject247.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject247.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject247.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject247.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject122.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject122.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject122.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject122.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject122.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject122.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject19.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject19.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject32.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject32.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject32.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject32.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject32.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject32.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject187.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject187.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject187.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject187.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject187.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject187.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject116.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject116.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject116.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject116.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject116.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject116.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject137.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject137.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject137.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject137.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject137.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject137.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject86.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject86.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject86.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject86.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject86.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject86.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject164.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject164.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject164.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject164.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject164.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject164.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject83.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject83.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject83.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject83.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject83.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject83.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject72.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject72.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject72.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject72.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject72.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject72.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject219.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject219.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject219.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject219.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject219.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject219.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject138.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject138.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject138.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject138.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject138.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject138.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject212.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject212.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject212.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject212.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject212.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject212.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject75.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject75.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject75.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject75.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject75.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject75.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject246.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject246.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject246.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject246.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject246.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject246.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                  <tr class="audio"> 
+                    <td><audio controls=""><source src="samples/TUT/Mono/subject50.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/Ours/subject50.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/WarpNet/subject50.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/BinauralGrad/subject50.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/NFS/subject50.wav" type="audio/wav"></audio></td> 
+                    <td><audio controls=""><source src="samples/TUT/GT/subject50.wav" type="audio/wav"></audio></td> 
+                  </tr>
+                </tbody>
+          </table>
+    </div>
+  
+    <p>
+  
+  
+  
+    
+  </div><div state="voice" class="placeholder-icon" id="tts-placeholder-icon" title="Click to show TTS button" style="background-image: url(&quot;chrome-extension://cpnomhnclohkhnikegipapofcjihldck/data/content_script/icons/voice.png&quot;);"><canvas width="36" height="36" class="loading-circle" id="text-to-speech-loader" style="display: none;"></canvas></div>
+
+    </body>
+</html>
