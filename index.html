@@ -2,7 +2,7 @@
 
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link rel="stylesheet" type="text/css" href="cid:css-99d622a7-b09d-4ecb-b6de-0cda4c5d89cf@mhtml.blink">
 
-  <title>Towards Universal Mono-to-Binaural Speech Synthesis</title>
+  <title>Zero-Shot Mono-to-Binaural Speech Synthesis</title>
       <meta property="og:title" content="Towards Universal Mono-to-Binaural Speech Synthesis">
       <meta property="og:type" content="article">
       <meta property="og:url" content="">
@@ -28,8 +28,8 @@
   
     <div class="abs">
         <p>
-          We consider the problem of synthesis of binaural speech from mono audio in arbitrary environments, which is important for modern telepresence and extended-reality applications. We find that existing neural mono-to-binaural methods are overfit to non-spatial acoustic properties, via analysis using a new benchmark (TUT Mono-to-Binaural), the first introduced since the original dataset of Richard at el. (2021). While these past methods focus on learning neural geometric transforms of monaural audio, we propose BinauralZero, a strong initial baseline for universal mono-to-binaural synthesis, which also matches or outperforms existing state-of-the-art neural mono-to-binaural renderers in their own environments despite never seeing any binaural data. It leverages the surprising discovery that an off-the-shelf mono audio denoising model can competently enhance the initial binauralization given by simple parameter-free transforms. We perform comprehensive ablations to understand how BinauralZero bridges the representation gap between mono and binaural audio, and analyze how current mono-to-binaural automated metrics are decorrelated from human ratings.
-    </p>
+
+        We present ZeroBAS, a neural method to synthesize binaural speech from monaural speech recordings and positional information without training on any binaural data. To our knowledge, this is the first published zero-shot neural approach to mono-to-binaural speech synthesis. Specifically, we show that a parameter-free geometric time warping and amplitude scaling based on source location suffices to get an initial binaural synthesis that can be refined by iteratively applying a pretrained denoising vocoder. Furthermore, we find this leads to generalization across room conditions, which we measure by introducing a new dataset, TUT Mono-to-Binaural, to evaluate state-of-the-art monaural-to-binaural synthesis methods on unseen conditions. Our zero-shot method is perceptually on-par with the performance of supervised methods on previous standard mono-to-binaural dataset, and even surpasses them on our out-of-distribution TUT Mono-to-Binaural dataset.</p>
     </div>
   
         <h1>Model</h1>
